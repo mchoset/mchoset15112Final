@@ -1,5 +1,3 @@
-'test 2'
-
 from cmu_graphics import *
 import ezdxf
 import math

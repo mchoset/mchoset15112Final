@@ -1,5 +1,3 @@
-'test2'
-
 import win32com.client
 import os
 import time
