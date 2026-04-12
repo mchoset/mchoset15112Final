@@ -2,12 +2,6 @@ from cmu_graphics import *
 import ezdxf
 import math
 import generateSldprt
-
-# ToDo's:
-'''
-1. gray out arrows/keys for input parameters that would be illegal
-'''
-
 # Equations
 '''
 --------------------------------------------------------------------------------
