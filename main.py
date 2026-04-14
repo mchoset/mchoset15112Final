@@ -1,7 +1,8 @@
 from cmu_graphics import *
 import ezdxf
 import math
-import importDxf
+import exportDrive
+import printDrive
 import os
 
 # Equations
@@ -350,7 +351,7 @@ def checkDxfButton(app, mouseX, mouseY):
 
     if ((btn2CenterX - btnWidth/2 < mouseX < btn2CenterX + btnWidth/2) and 
         (btnCenterY - btnHeight/2 < mouseY < btnCenterY + btnHeight/2)):
-        importDriveToSldwrks(app)
+        exportDriveTo3DP(app)
 
 def onKeyPress(app, key):
     if key in ['p', 'P']:
@@ -463,12 +464,15 @@ def checkValidParameters(app):
 
 # ----------------------DXF AND SLDWRKS STUFF-----------------------------------
 
-def importDriveToSldwrks(app):
+def exportDriveTo3DP(app):
     importGearToSldwrks(app)
-    importExtPinsToSldwrks(app)
+    importStationaryPinsToSldwrks(app)
     importOutputPinsToSldwrks(app)
     importInputShaftToSldwrks(app)
-    print('Done w/ sldwrks stuff')
+    exportDrive.finishSolidworksModeling()
+    exportDrive.exportStlFiles()
+    printDrive.TEMP()
+
 
 def importGearToSldwrks(app):
     e = app.e
@@ -493,12 +497,10 @@ def importGearToSldwrks(app):
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
 
-    
-    importDxf.importAndCreateNewPart(fileName, 0.01)
+    exportDrive.importAndCreateNewPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
-
-def importExtPinsToSldwrks(app):
+def importStationaryPinsToSldwrks(app):
     R = app.R
     Np = app.Np
     r = app.r
@@ -514,9 +516,8 @@ def importExtPinsToSldwrks(app):
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
     
-    importDxf.importToExistingPart(fileName, 0.01)
+    exportDrive.importToExistingPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
-
 
 def importOutputPinsToSldwrks(app):
     outR = app.outputShaftRadius
@@ -534,7 +535,7 @@ def importOutputPinsToSldwrks(app):
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
     
-    importDxf.importToExistingPart(fileName, 0.01)
+    exportDrive.importToExistingPart(fileName, 0.015)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importInputShaftToSldwrks(app):
@@ -550,7 +551,7 @@ def importInputShaftToSldwrks(app):
     fileName = 'inputShaftTemp1.dxf'
     doc.saveas(fileName)
     
-    importDxf.importToExistingPart(fileName, 0.01)
+    exportDrive.importToExistingPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
     # ------------ Cam Shaft -> Input Shaft ---------------
@@ -562,7 +563,7 @@ def importInputShaftToSldwrks(app):
     fileName = 'inputShaftTemp2.dxf'
     doc.saveas(fileName)
     
-    importDxf.importToExistingPart(fileName, 0.03)
+    exportDrive.importToExistingPart(fileName, 0.03)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def generateDxf(app):
@@ -587,17 +588,17 @@ def generateDxf(app):
     msp.add_circle((e/1000, 0), radius=camRadius/1000)
     msp.add_circle((0, 0), radius=inputShaftRadius/1000)
 
-    for i in range(numOut): # output holes
+    for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=holeRadius/1000)
 
-    for i in range(numOut): # output pins
+    for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(0, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=outR/1000)
 
-    for i in range(Np): # ext pins
+    for i in range(Np):
         thetaDeg = i*(360/Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=r/1000)
