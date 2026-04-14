@@ -69,7 +69,7 @@ def onAppStart(app):
     app.diskAngleDeg = 0
     app.shaftAngleDeg = 0
 
-    app.verticalGearShift = app.height*1/2
+    app.verticalGearShift = app.height*13/24
 
     app.scaledEccentricity = app.e*app.scalar
     app.currentDiskCenterX, app.currentDiskCenterY = (getRadiusEndpoints
@@ -102,31 +102,31 @@ def drawInputBox(x, y, width, height, labelText, valueText, keybind):
     drawLabel(valueText, x + 10, y + height/2, align='left', size=16)
 
 def drawLabels(app):
-    padding = 20
-    boxW = (app.width - padding*5)/4
+    marginSize = 20
+    boxW = (app.width - marginSize*5)/4
     boxH = 40
-    startY1 = 40
-    startY2 = 120
+    startY0 = 40
+    startY1 = 120
 
-    drawInputBox(padding, startY1, boxW, boxH,
+    drawInputBox(marginSize, startY0, boxW, boxH,
                  'Number of Pins', str(app.Np) + f'   (Gear Ratio {app.Np-1}:1)', 'Up/Down')
-    drawInputBox(padding*2 + boxW, startY1, boxW, boxH,
+    drawInputBox(marginSize*2 + boxW, startY0, boxW, boxH,
                  'Pin Circle Radius', f'{app.R} mm', 'Left/Right')
-    drawInputBox(padding*3 + boxW*2, startY1, boxW, boxH,
+    drawInputBox(marginSize*3 + boxW*2, startY0, boxW, boxH,
                  'Eccentricity', f'{app.e} mm', 'W/S')
-    drawInputBox(padding*4 + boxW*3, startY1, boxW, boxH,
+    drawInputBox(marginSize*4 + boxW*3, startY0, boxW, boxH,
                  'External Pin Radius', f'{app.r} mm', 'Q/A')
-    drawInputBox(padding, startY2, boxW, boxH,
+    drawInputBox(marginSize, startY1, boxW, boxH,
                  'Cam Shaft Radius', f'{app.camShaftRadius} mm', 'I/K')
-    drawInputBox(padding*2 + boxW, startY2, boxW, boxH,
+    drawInputBox(marginSize*2 + boxW, startY1, boxW, boxH,
                  'Output Pins', str(app.numOutputShafts), 'T/G')
-    drawInputBox(padding*3 + boxW*2, startY2, boxW, boxH,
+    drawInputBox(marginSize*3 + boxW*2, startY1, boxW, boxH,
                  'Output Pin Radius', f'{app.outputShaftRadius} mm', 'Y/H')
-    drawInputBox(padding*4 + boxW*3, startY2, boxW, boxH,
+    drawInputBox(marginSize*4 + boxW*3, startY1, boxW, boxH,
                  'Output Pin Circle Radius', f'{app.outputShaftDistFromCenter} mm', 'U/J')
 
     pausedStatus = 'unpause' if app.paused else 'pause'
-    drawLabel(f"Press P to {pausedStatus}", app.width/2, startY2 + boxH + 25, size=16, bold=True)
+    drawLabel(f"Press P to {pausedStatus}", app.width/2, startY1 + boxH + 25, size=16, bold=True)
 
 def drawButton(app):
     btnWidth = app.width*0.4
@@ -206,14 +206,14 @@ def drawDownArrow(cx, cy):
     drawPolygon(cx, cy + 5, cx - 6, cy - 5, cx + 6, cy - 5, fill='black')
 
 def drawArrows(app):
-    padding = 20
-    boxWidth = (app.width-padding*5)/4
+    marginSize = 20
+    boxWidth = (app.width-marginSize*5)/4
     boxHeight = 40
     yValues = [40, 120]
 
     for rowY in yValues:
         for arrowCol in range(4):
-            boxLeftX = padding*(arrowCol + 1) + boxWidth*arrowCol
+            boxLeftX = marginSize*(arrowCol + 1) + boxWidth*arrowCol
             arrowCx = boxLeftX + boxWidth - 15
             
             upArrowCy = rowY + boxHeight/2 - 8
@@ -222,10 +222,10 @@ def drawArrows(app):
             drawUpArrow(arrowCx, upArrowCy)
             drawDownArrow(arrowCx, downArrowCy)
 
-# -------------------------------GEAR STUFF-------------------------------------
+# ---------------------------Changing Stuff-------------------------------------
 def onStep(app):
     app.scalar = app.height/(app.R*5)
-    app.verticalGearShift = 7*app.height/12
+    app.verticalGearShift = app.height*13/24
     if not app.paused:
         takeStep(app)
 
@@ -246,44 +246,95 @@ def onMousePress(app, mouseX, mouseY):
     checkArrows(app, mouseX, mouseY)
 
 def checkArrows(app, mouseX, mouseY):
-    padding = 20
-    boxWidth = (app.width - padding*5)/4
+    marginSize = 20
+    boxWidth = (app.width - marginSize*5)/4
     boxHeight = 40
-    yValues = [40, 120]
-    
-    keyMap = {
-        (0, 0): ('up', 'down'),
-        (0, 1): ('right', 'left'),
-        (0, 2): ('w', 's'),
-        (0, 3): ('q', 'a'),
-        (1, 0): ('i', 'k'),
-        (1, 1): ('t', 'g'),
-        (1, 2): ('y', 'h'),
-        (1, 3): ('u', 'j')
-    }
+    startY0 = 40
+    startY1 = 120
+    hitboxSize = 10
 
-    for rowIndex in range(len(yValues)):
-        rowY = yValues[rowIndex]
-        for arrowCol in range(4):
-            boxLeftX = padding*(arrowCol + 1) + boxWidth*arrowCol
-            arrowCx = boxLeftX + boxWidth - 15
-            
-            upArrowCy = rowY + boxHeight/2 - 8
-            downArrowCy = rowY + boxHeight/2 + 8
-            
-            hitboxSize = 10
-            
-            if (arrowCx - hitboxSize <= mouseX <= arrowCx + hitboxSize and 
-                upArrowCy - hitboxSize <= mouseY <= upArrowCy + hitboxSize):
-                simulatedKey = keyMap[(rowIndex, arrowCol)][0]
-                onKeyPress(app, simulatedKey)
-                return
-                
-            if (arrowCx - hitboxSize <= mouseX <= arrowCx + hitboxSize and 
-                downArrowCy - hitboxSize <= mouseY <= downArrowCy + hitboxSize):
-                simulatedKey = keyMap[(rowIndex, arrowCol)][1]
-                onKeyPress(app, simulatedKey)
-                return
+    col0ArrowCx = marginSize*1 + boxWidth - 15
+    col1ArrowCx = marginSize*2 + boxWidth*1 + boxWidth - 15
+    col2ArrowCx = marginSize*3 + boxWidth*2 + boxWidth - 15
+    col3ArrowCx = marginSize*4 + boxWidth*3 + boxWidth - 15
+
+    row0UpArrowCy = startY0 + boxHeight/2 - 8
+    row0DownArrowCy = startY0 + boxHeight/2 + 8
+    
+    row1UpCy = startY1 + boxHeight/2 - 8
+    row1DownCy = startY1 + boxHeight/2 + 8
+
+    if (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
+        row0UpArrowCy - hitboxSize <= mouseY <= row0UpArrowCy + hitboxSize):
+        onKeyPress(app, 'up')
+        return
+    elif (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
+        row0DownArrowCy - hitboxSize <= mouseY <= row0DownArrowCy + hitboxSize):
+        onKeyPress(app, 'down')
+        return
+
+    elif (col1ArrowCx - hitboxSize <= mouseX <= col1ArrowCx + hitboxSize and 
+        row0UpArrowCy - hitboxSize <= mouseY <= row0UpArrowCy + hitboxSize):
+        onKeyPress(app, 'right')
+        return
+    elif (col1ArrowCx - hitboxSize <= mouseX <= col1ArrowCx + hitboxSize and 
+        row0DownArrowCy - hitboxSize <= mouseY <= row0DownArrowCy + hitboxSize):
+        onKeyPress(app, 'left')
+        return
+
+    elif (col2ArrowCx - hitboxSize <= mouseX <= col2ArrowCx + hitboxSize and 
+        row0UpArrowCy - hitboxSize <= mouseY <= row0UpArrowCy + hitboxSize):
+        onKeyPress(app, 'w')
+        return
+    elif (col2ArrowCx - hitboxSize <= mouseX <= col2ArrowCx + hitboxSize and 
+        row0DownArrowCy - hitboxSize <= mouseY <= row0DownArrowCy + hitboxSize):
+        onKeyPress(app, 's')
+        return
+
+    elif (col3ArrowCx - hitboxSize <= mouseX <= col3ArrowCx + hitboxSize and 
+        row0UpArrowCy - hitboxSize <= mouseY <= row0UpArrowCy + hitboxSize):
+        onKeyPress(app, 'q')
+        return
+    elif (col3ArrowCx - hitboxSize <= mouseX <= col3ArrowCx + hitboxSize and 
+        row0DownArrowCy - hitboxSize <= mouseY <= row0DownArrowCy + hitboxSize):
+        onKeyPress(app, 'a')
+        return
+
+    elif (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
+        row1UpCy - hitboxSize <= mouseY <= row1UpCy + hitboxSize):
+        onKeyPress(app, 'i')
+        return
+    elif (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
+        row1DownCy - hitboxSize <= mouseY <= row1DownCy + hitboxSize):
+        onKeyPress(app, 'k')
+        return
+
+    elif (col1ArrowCx - hitboxSize <= mouseX <= col1ArrowCx + hitboxSize and 
+        row1UpCy - hitboxSize <= mouseY <= row1UpCy + hitboxSize):
+        onKeyPress(app, 't')
+        return
+    elif (col1ArrowCx - hitboxSize <= mouseX <= col1ArrowCx + hitboxSize and 
+        row1DownCy - hitboxSize <= mouseY <= row1DownCy + hitboxSize):
+        onKeyPress(app, 'g')
+        return
+
+    elif (col2ArrowCx - hitboxSize <= mouseX <= col2ArrowCx + hitboxSize and 
+        row1UpCy - hitboxSize <= mouseY <= row1UpCy + hitboxSize):
+        onKeyPress(app, 'y')
+        return
+    elif (col2ArrowCx - hitboxSize <= mouseX <= col2ArrowCx + hitboxSize and 
+        row1DownCy - hitboxSize <= mouseY <= row1DownCy + hitboxSize):
+        onKeyPress(app, 'h')
+        return
+
+    elif (col3ArrowCx - hitboxSize <= mouseX <= col3ArrowCx + hitboxSize and 
+        row1UpCy - hitboxSize <= mouseY <= row1UpCy + hitboxSize):
+        onKeyPress(app, 'u')
+        return
+    elif (col3ArrowCx - hitboxSize <= mouseX <= col3ArrowCx + hitboxSize and 
+        row1DownCy - hitboxSize <= mouseY <= row1DownCy + hitboxSize):
+        onKeyPress(app, 'j')
+        return
 
 def checkDxfButton(app, mouseX, mouseY):
     btnWidth = app.width*0.4
