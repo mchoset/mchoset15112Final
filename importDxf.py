@@ -44,13 +44,17 @@ def createSketch():
 def createTolerances():
     return
 
-def importDxfToSldwrks(dxfFileName):
+def importAndCreateNewPart(dxfFileName):
     createNewPart()
     selectTopPlane()
     importDxf(dxfFileName)
-    createSketch()
-    createTolerances()
+    #createSketch()
+    #createTolerances()
     print('Done')
     
-
-importDxfToSldwrks('cycloidalDrive.dxf')
+def importToExistingPart(dxfFileName):
+    selectTopPlane()
+    importDxf(dxfFileName)
+    #createSketch()
+    #createTolerances()
+    print('Done')

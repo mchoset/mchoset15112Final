@@ -2,6 +2,11 @@ from cmu_graphics import *
 import ezdxf
 import math
 import importDxf
+import os
+
+'''
+need to create tolerances within the dxf import
+S'''
 # Equations
 '''
 --------------------------------------------------------------------------------
@@ -76,6 +81,8 @@ def onAppStart(app):
                                                        app.verticalGearShift, 
                                                        app.scaledEccentricity, 
                                                        -app.shaftAngleDeg))
+
+    app.tolerance = 2.5*10**-5
 
     app.resolution = 500
     app.centeredGearPoints = generateXYPoints(app, 0, 2*math.pi, app.resolution)
@@ -410,6 +417,7 @@ def importDriveToSldwrks(app):
     importGearToSldwrks(app)
     importExtPinsToSldwrks(app)
     importOutputPinsToSldwrks(app)
+    importInputShaftToSldwrks(app)
 
 def importGearToSldwrks(app):
     e = app.e
@@ -427,15 +435,16 @@ def importGearToSldwrks(app):
     for i in range(numOut): # output holes
         thetaDeg = i * (360 / numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=holeRadius/1000)
+        msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance)
 
-    msp.add_circle((e/1000, 0), radius=camRadius/1000)
+    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance)
 
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
 
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    
+    importDxf.importAndCreateNewPart(fileName)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 
 def importExtPinsToSldwrks(app):
@@ -449,12 +458,13 @@ def importExtPinsToSldwrks(app):
     for i in range(Np): # ext pins
         thetaDeg = i * (360 / Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=r/1000)
+        msp.add_circle((cx, cy), radius=r/1000 - app.tolerance)
 
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    
+    importDxf.importToExistingPart(fileName)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 
 def importOutputPinsToSldwrks(app):
@@ -473,8 +483,25 @@ def importOutputPinsToSldwrks(app):
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    
+    importDxf.importToExistingPart(fileName)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
+def importInputShaftToSldwrks(app):
+    e = app.e
+    camRadius = app.camShaftRadius
+    inputShaftRadius = camRadius - e
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+
+    msp.add_circle((0, 0), radius=inputShaftRadius/1000)
+    msp.add_circle((e/1000, 0), radius=camRadius/1000)
+
+    fileName = 'inputShaftTemp.dxf'
+    doc.saveas(fileName)
+    # ------------ IMPORTING TO SOLIDWORKS --------------
+    importDxf.importToExistingPart(fileName)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def generateDxf(app):
     R = app.R
