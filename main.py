@@ -1,7 +1,7 @@
 from cmu_graphics import *
 import ezdxf
 import math
-import generateSldprt
+import importDxf
 # Equations
 '''
 --------------------------------------------------------------------------------
@@ -435,11 +435,7 @@ def importGearToSldwrks(app):
     doc.saveas(fileName)
 
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    extrusionThickness = 12.5
-    path = generateSldprt.getPath(fileName)
-    generateSldprt.importAndExtrudeNewPart(path, extrusionThickness)
-    # ------------ DELETE TEMP FILE ----------------------
-    generateSldprt.deleteFile(path)
+    
 
 
 def importExtPinsToSldwrks(app):
@@ -458,11 +454,7 @@ def importExtPinsToSldwrks(app):
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    extrusionThickness = 25
-    path = generateSldprt.getPath(fileName)
-    generateSldprt.importAndExtrudeExisitingPart(path, extrusionThickness)
-    # ------------ DELETE TEMP FILE ----------------------
-    generateSldprt.deleteFile(path)
+    
 
 
 def importOutputPinsToSldwrks(app):
@@ -481,11 +473,7 @@ def importOutputPinsToSldwrks(app):
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
     # ------------ IMPORTING TO SOLIDWORKS --------------
-    extrusionThickness = 12.5
-    path = generateSldprt.getPath(fileName)
-    generateSldprt.importAndExtrudeExisitingPart(path, extrusionThickness)
-    # ------------ DELETE TEMP FILE ----------------------
-    generateSldprt.deleteFile(path)
+    
 
 
 def generateDxf(app):
