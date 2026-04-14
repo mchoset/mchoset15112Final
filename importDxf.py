@@ -41,20 +41,11 @@ def createSketch():
     swExt.SelectByID2('Sketch1', "SKETCH", 0.0, 0.0, 0.0, False, 0, nullObject, 0)
     swModel.BlankSketch()
 
-def createTolerances():
-    return
-
 def importAndCreateNewPart(dxfFileName):
     createNewPart()
     selectTopPlane()
     importDxf(dxfFileName)
-    #createSketch()
-    #createTolerances()
-    print('Done')
     
 def importToExistingPart(dxfFileName):
     selectTopPlane()
     importDxf(dxfFileName)
-    #createSketch()
-    #createTolerances()
-    print('Done')
