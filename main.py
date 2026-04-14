@@ -4,9 +4,6 @@ import math
 import importDxf
 import os
 
-'''
-need to extrude now (done in other file)
-'''
 # Equations
 '''
 --------------------------------------------------------------------------------
@@ -225,7 +222,7 @@ def drawArrows(app):
             drawUpArrow(arrowCx, upArrowCy)
             drawDownArrow(arrowCx, downArrowCy)
 
-# ----------------------------------DRAWING-------------------------------------
+# -------------------------------GEAR STUFF-------------------------------------
 def onStep(app):
     app.scalar = app.height/(app.R*5)
     app.verticalGearShift = 7*app.height/12
@@ -440,13 +437,13 @@ def importGearToSldwrks(app):
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance)
 
-    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance)
+    msp.add_circle((e/1000, 0), radius=camRadius/1000 + 2*app.tolerance)
 
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
 
-    # ------------ IMPORTING TO SOLIDWORKS --------------
-    importDxf.importAndCreateNewPart(fileName)
+    
+    importDxf.importAndCreateNewPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 
@@ -465,8 +462,8 @@ def importExtPinsToSldwrks(app):
 
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
-    # ------------ IMPORTING TO SOLIDWORKS --------------
-    importDxf.importToExistingPart(fileName)
+    
+    importDxf.importToExistingPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 
@@ -485,8 +482,8 @@ def importOutputPinsToSldwrks(app):
 
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
-    # ------------ IMPORTING TO SOLIDWORKS --------------
-    importDxf.importToExistingPart(fileName)
+    
+    importDxf.importToExistingPart(fileName, 0.01)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importInputShaftToSldwrks(app):
@@ -497,13 +494,24 @@ def importInputShaftToSldwrks(app):
     doc = ezdxf.new()
     msp = doc.modelspace()
 
-    msp.add_circle((0, 0), radius=inputShaftRadius/1000)
     msp.add_circle((e/1000, 0), radius=camRadius/1000)
 
-    fileName = 'inputShaftTemp.dxf'
+    fileName = 'inputShaftTemp1.dxf'
     doc.saveas(fileName)
-    # ------------ IMPORTING TO SOLIDWORKS --------------
-    importDxf.importToExistingPart(fileName)
+    
+    importDxf.importToExistingPart(fileName, 0.01)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+
+    # ------------ Cam Shaft -> Input Shaft ---------------
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+
+    msp.add_circle((0, 0), radius=(inputShaftRadius/1000)*0.75)
+
+    fileName = 'inputShaftTemp2.dxf'
+    doc.saveas(fileName)
+    
+    importDxf.importToExistingPart(fileName, 0.03)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def generateDxf(app):

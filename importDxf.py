@@ -13,8 +13,8 @@ def selectTopPlane():
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc        
     swExt = swModel.Extension
-    nullObject = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
-    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, nullObject, 0)
+    comNoneEquivalent = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
+    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, comNoneEquivalent, 0)
 
 def importDxf(dxfFileName):
     swApp = win32com.client.Dispatch('SldWorks.Application')
@@ -23,29 +23,40 @@ def importDxf(dxfFileName):
     dxfPath = os.path.join(scriptDir, dxfFileName)
     swModel.FeatureManager.InsertDwgOrDxfFile(dxfPath)
 
-def createSketch():
+def extrudeSkecth(depth):
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
-    swExt = swModel.Extension
-    nullObject = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
+    swModel.FeatureManager.FeatureExtrusion3(
+        True,   # Single direction
+        False,  # Flip direction
+        False,  # Direction
+        0,      # Termination type (0 for Blind)
+        0,      # Termination type
+        depth,   # Depth in meters
+        0.0,    # Depth for second direction
+        False,  # Draft
+        False,  # Draft
+        False,  # Draft
+        False,  # Draft
+        0, 0,   # Draft angles
+        False,  # Offset
+        False,  # Offset
+        False,  # Translate surface
+        True,  # Merge result
+        True,   # Use material sheet metal
+        True,   # Use feature scope
+        True,   # Use auto-select
+        0, 0,   # Top/Bottom radius
+        False   # Check for self-intersection
+    )
 
-    swModel.ClearSelection2(True)
-    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, nullObject, 0)
-    swModel.SketchManager.InsertSketch(True)
-    swModel.ClearSelection2(True)
-    swExt.SelectByID2('Sketch1', 'SKETCH', 0.0, 0.0, 0.0, False, 0, nullObject, 0)
-    swModel.SketchManager.SketchUseEdge3(False, False)
-    swModel.ClearSelection2(True)
-    swModel.SketchManager.InsertSketch(True)
-
-    swExt.SelectByID2('Sketch1', "SKETCH", 0.0, 0.0, 0.0, False, 0, nullObject, 0)
-    swModel.BlankSketch()
-
-def importAndCreateNewPart(dxfFileName):
+def importAndCreateNewPart(dxfFileName, depth):
     createNewPart()
     selectTopPlane()
     importDxf(dxfFileName)
+    extrudeSkecth(depth)
     
-def importToExistingPart(dxfFileName):
+def importToExistingPart(dxfFileName, depth):
     selectTopPlane()
     importDxf(dxfFileName)
+    extrudeSkecth(depth)
