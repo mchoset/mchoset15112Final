@@ -5,6 +5,10 @@ import exportDrive
 import printDrive
 import os
 
+'''
+todo's: merge correct housing bodies
+'''
+
 # Equations
 '''
 --------------------------------------------------------------------------------
@@ -79,7 +83,8 @@ def onAppStart(app):
                                                        app.scaledEccentricity, 
                                                        -app.shaftAngleDeg))
 
-    app.tolerance = 2.5*10**-5
+    app.tolerance = 2.5*10**-4
+    app.extrustionThickness = 0.01
 
     app.resolution = 500
     app.centeredGearPoints = generateXYPoints(app, 0, 2*math.pi, app.resolution)
@@ -469,9 +474,9 @@ def exportDriveTo3DP(app):
     importStationaryPinsToSldwrks(app)
     importOutputPinsToSldwrks(app)
     importInputShaftToSldwrks(app)
-    exportDrive.finishSolidworksModeling()
-    exportDrive.exportStlFiles()
-    printDrive.TEMP()
+    exportDrive.finishSolidworksModeling(app)
+    # exportDrive.exportStlFiles()
+    # printDrive.TEMP()
 
 
 def importGearToSldwrks(app):
@@ -492,12 +497,15 @@ def importGearToSldwrks(app):
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance)
 
-    msp.add_circle((e/1000, 0), radius=camRadius/1000 + 2*app.tolerance)
+    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance)
 
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
 
-    exportDrive.importAndCreateNewPart(fileName, 0.01)
+
+    flipDirection = False
+    merge = False
+    exportDrive.importAndCreateNewPart(fileName, app.extrustionThickness, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importStationaryPinsToSldwrks(app):
@@ -516,7 +524,9 @@ def importStationaryPinsToSldwrks(app):
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
     
-    exportDrive.importToExistingPart(fileName, 0.01)
+    flipDirection = False
+    merge = False
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.25, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importOutputPinsToSldwrks(app):
@@ -535,7 +545,9 @@ def importOutputPinsToSldwrks(app):
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
     
-    exportDrive.importToExistingPart(fileName, 0.015)
+    flipDirection = False
+    merge = False
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.5, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importInputShaftToSldwrks(app):
@@ -551,7 +563,9 @@ def importInputShaftToSldwrks(app):
     fileName = 'inputShaftTemp1.dxf'
     doc.saveas(fileName)
     
-    exportDrive.importToExistingPart(fileName, 0.01)
+    flipDirection = False
+    merge = False
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
     # ------------ Cam Shaft -> Input Shaft ---------------
@@ -563,7 +577,9 @@ def importInputShaftToSldwrks(app):
     fileName = 'inputShaftTemp2.dxf'
     doc.saveas(fileName)
     
-    exportDrive.importToExistingPart(fileName, 0.03)
+    flipDirection = True
+    merge = True
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*2, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def generateDxf(app):
