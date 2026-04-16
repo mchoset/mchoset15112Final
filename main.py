@@ -475,8 +475,7 @@ def exportDriveTo3DP(app):
     importOutputPinsToSldwrks(app)
     importInputShaftToSldwrks(app)
     exportDrive.finishSolidworksModeling(app)
-    # exportDrive.exportStlFiles()
-    # printDrive.TEMP()
+    printDrive.exportSolidBodies()
 
 
 def importGearToSldwrks(app):
