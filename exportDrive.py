@@ -18,8 +18,7 @@ def selectTopPlane():
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc        
     swExt = swModel.Extension
-    comNoneEquivalent = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
-    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, comNoneEquivalent, 0)
+    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
 
 def importDxf(dxfFileName):
     swApp = win32com.client.Dispatch('SldWorks.Application')
@@ -57,15 +56,14 @@ def extrudeSketch(depth, flipDirection, merge):
         False           # 23: Flip start offset 
     )
 
-def createOffsetPlaneFromTop(distance):
+def createOffsetPlaneFromTop(distance, flipDirection):
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
     swExt = swModel.Extension
+
+    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
     
-    comNoneEquivalent = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
-    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, comNoneEquivalent, 0)
-    
-    swModel.FeatureManager.InsertRefPlane(8, distance, 0, 0.0, 0, 0.0)
+    swModel.FeatureManager.InsertRefPlane(flipDirection, distance, 0, 0.0, 0, 0.0)
 
 def importAndCreateNewPart(dxfFileName, depth, flipExtrudeDirection, merge):
     createNewPart()
@@ -80,7 +78,7 @@ def importToExistingPart(dxfFileName, depth, flipExtrudeDirection, merge):
 
 def finishSolidworksModeling(app):
     makeDriveHousing(app)
-    #makeOutput(app)
+    makeOutput(app)
 
 def makeDriveHousing(app):
     selectTopPlane()
@@ -118,13 +116,14 @@ def makeDriveHousing(app):
     combineHousingBodies()
 
 def makeOutput(app):
-    createOffsetPlaneFromTop(app.extrustionThickness*1.5)
+    flipDirection = 8 # False
+    createOffsetPlaneFromTop(app.extrustionThickness*1.5, flipDirection)
+
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
     swExt = swModel.Extension
 
-    comNoneEquivalent = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
-    swExt.SelectByID2('Plane6', 'PLANE', 0.0, 0.0, 0.0, False, 0, comNoneEquivalent, 0)
+    swExt.SelectByID2('Plane6', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
 
     swModel.InsertSketch2(True)
     swSketchManager = swModel.SketchManager
@@ -136,22 +135,9 @@ def makeOutput(app):
 
 def combineHousingBodies():
     swApp = win32com.client.Dispatch('SldWorks.Application')
-    swModel = swApp.ActiveDoc
     
-    comNoneEquivalent = win32com.client.VARIANT(pythoncom.VT_DISPATCH, None)
+    scriptDir = os.getcwd()
+    macroPath = os.path.join(scriptDir, 'combineMacro.swp')
+    errorCode = win32com.client.VARIANT(pythoncom.VT_BYREF|pythoncom.VT_I4, 0)
     
-    # Extract the mathematical body directly from the first feature
-    featureOne = swModel.FeatureByName('Boss-Extrude6')
-    facesOne = featureOne.GetFaces
-    bodyOne = facesOne[0].GetBody
-    
-    # Extract the mathematical body directly from the second feature
-    featureTwo = swModel.FeatureByName('Boss-Extrude7')
-    facesTwo = featureTwo.GetFaces
-    bodyTwo = facesTwo[0].GetBody
-    
-    # Package the bodies into a tuple to ensure proper array translation
-    bodiesTuple = (bodyOne, bodyTwo)
-    
-    # Execute the addition using an empty variant for the primary parameter
-    swModel.FeatureManager.InsertCombineFeature(15939, comNoneEquivalent, bodiesTuple)
+    swApp.RunMacro2(macroPath, 'combineMacro1', 'main', 0, errorCode)
