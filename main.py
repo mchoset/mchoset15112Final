@@ -68,7 +68,7 @@ def onAppStart(app):
     app.outputShaftRadius = 4.0
 
     app.scalar = app.height/(app.R*5)
-    app.stepsPerSecond = 60
+    app.stepsPerSecond = 30
     app.paused = False
 
     app.diskAngleDeg = 0
@@ -467,6 +467,18 @@ def checkValidParameters(app):
         if condition == False: return False
     return True
 
+
+
+
+
+
+
+
+
+
+
+
+
 # ----------------------DXF AND SLDWRKS STUFF-----------------------------------
 
 def exportDriveTo3DP(app):
@@ -476,6 +488,7 @@ def exportDriveTo3DP(app):
     importInputShaftToSldwrks(app)
     exportDrive.finishSolidworksModeling(app)
     printDrive.exportSolidBodies()
+    printDrive.generateGcode()
 
 
 def importGearToSldwrks(app):
