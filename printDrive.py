@@ -40,6 +40,8 @@ def exportSolidBodies():
 def generateGcode():
     launchSlicerWithParts()
     arrangePartsAndSlice()
+    exportGcode()
+    cleanupStls()
 
 def openBambuStudio(filePaths):
     bambuPath = r'C:\Program Files\Bambu Studio\bambu-studio.exe'
@@ -68,3 +70,27 @@ def arrangePartsAndSlice():
     pyautogui.press('a')
     time.sleep(1)
     pyautogui.press('tab')
+
+def exportGcode():
+    time.sleep(7.5)
+    pyautogui.hotkey('ctrl', 'g')
+    time.sleep(2)
+
+    scriptDirectory = os.getcwd()
+    exportPath = os.path.join(scriptDirectory, 'cycloidalDrive.gcode.3mf')
+    pyautogui.write(exportPath)
+    
+    time.sleep(1)
+    pyautogui.press('enter')
+
+def cleanupStls():
+    scriptDirectory = os.getcwd()
+    stlFiles = [
+        os.path.join(scriptDirectory, 'Boss-Extrude1.stl'),
+        os.path.join(scriptDirectory, 'Boss-Extrude5.stl'),
+        os.path.join(scriptDirectory, 'Combine1.stl'),
+        os.path.join(scriptDirectory, 'Boss-Extrude8.stl')
+    ]
+    
+    for file in stlFiles:
+        os.remove(file)
