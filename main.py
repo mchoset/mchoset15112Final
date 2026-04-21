@@ -5,11 +5,7 @@ import exportDrive
 import printDrive
 import os
 
-'''
-todo's: merge correct housing bodies
-'''
-
-# Equations
+# Equations given by AI that define the shape of the cycloidal disk
 '''
 --------------------------------------------------------------------------------
 Inputs that define cycloidal drive geometry
@@ -149,7 +145,7 @@ def drawButton(app):
 
     drawRect(btn2CenterX, btnCenterY, btnWidth, btnHeight, fill='red', 
              border='black', borderWidth=5, align='center')
-    drawLabel('Export to Solidworks', btn2CenterX, btnCenterY, 
+    drawLabel('Export to Sldwrks & 3DP', btn2CenterX, btnCenterY, 
               size=app.height*0.04, bold=True, fill='white')
 
 def drawGear(app):
@@ -157,7 +153,6 @@ def drawGear(app):
     for x, y in app.centeredGearPoints:
         adjustedGearPoints.append((x*app.scalar) + app.currentDiskCenterX)
         adjustedGearPoints.append((y*app.scalar) + app.currentDiskCenterY)
-
     drawPolygon(*adjustedGearPoints, rotateAngle=app.diskAngleDeg)
 
 def drawGearHoles(app):
@@ -221,7 +216,6 @@ def drawArrows(app):
         for arrowCol in range(4):
             boxLeftX = marginSize*(arrowCol + 1) + boxWidth*arrowCol
             arrowCx = boxLeftX + boxWidth - 15
-            
             upArrowCy = rowY + boxHeight/2 - 8
             downArrowCy = rowY + boxHeight/2 + 8
             
@@ -259,6 +253,10 @@ def checkArrows(app, mouseX, mouseY):
     startY1 = 120
     hitboxSize = 10
 
+    '''
+    AI Wrote the code for the hitboxes of the arrows
+    '''
+    # Starts here
     col0ArrowCx = marginSize*1 + boxWidth - 15
     col1ArrowCx = marginSize*2 + boxWidth*1 + boxWidth - 15
     col2ArrowCx = marginSize*3 + boxWidth*2 + boxWidth - 15
@@ -269,6 +267,7 @@ def checkArrows(app, mouseX, mouseY):
     
     row1UpCy = startY1 + boxHeight/2 - 8
     row1DownCy = startY1 + boxHeight/2 + 8
+    # Ends Here
 
     if (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
         row0UpArrowCy - hitboxSize <= mouseY <= row0UpArrowCy + hitboxSize):
@@ -427,7 +426,6 @@ def onKeyPress(app, key):
         app.numOutputShafts = numOutputShaftsOld
         app.outputShaftRadius = outputShaftRadiusOld
         app.outputShaftDistFromCenter = outputShaftDistFromCenterOld
-        print('INVALID')
 
 def checkValidParameters(app):
     Np = app.Np
@@ -441,6 +439,7 @@ def checkValidParameters(app):
     outputHoleRadius = outputR + e
     minThickness = 2
 
+    # ------------- These conditions were found by AI --------------------------
     distBetweenOutputHoleAndEdge = 2*outputDist*math.sin(math.pi/numOutput)
     if R < e*(Np ** 2):
         minRho = ((R - e*Np)**2)/(e*(Np**2) - R) 
@@ -466,22 +465,23 @@ def checkValidParameters(app):
     for condition in conditions:
         if condition == False: return False
     return True
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ------------------------------------------------------------------------------
 # ----------------------DXF AND SLDWRKS STUFF-----------------------------------
 
+'''
+These commands from now to the end of the file and the variables they were assigned to were written by AI:
+ezdxf.new()
+doc.modelspace()
+msp.add_lwpolyline
+msp.add_circle
+doc.saveas(fileName)
+
+These commands from the os module and the variables they were assigned to were written by AI:
+os.remove(os.path.join(os.path.dirname(__file__), fileName))
+'''
+
 def exportDriveTo3DP(app):
+    exportDrive.minimizeWindow()
     importGearToSldwrks(app)
     importStationaryPinsToSldwrks(app)
     importOutputPinsToSldwrks(app)
@@ -513,7 +513,6 @@ def importGearToSldwrks(app):
 
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
-
 
     flipDirection = False
     merge = False
@@ -559,7 +558,7 @@ def importOutputPinsToSldwrks(app):
     
     flipDirection = False
     merge = False
-    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.5, flipDirection, merge)
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.3, flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importInputShaftToSldwrks(app):

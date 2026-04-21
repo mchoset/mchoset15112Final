@@ -2,6 +2,12 @@ import win32com.client
 import pythoncom
 import os
 import math
+import pyautogui
+import time
+
+def minimizeWindow():
+    currentWindow = pyautogui.getActiveWindow()
+    currentWindow.minimize()
 
 def getRadiusEndpoints(cx, cy, r, theta):
     return (cx + r*math.cos(math.radians(theta)), 
@@ -13,10 +19,19 @@ def createNewPart():
     templatePath = swApp.GetUserPreferenceStringValue(8)
     swModel = swApp.NewDocument(templatePath, 0, 0, 0)
     swModel.Extension
+    goFullscreen()
+
+def goFullscreen():
+    time.sleep(5)
+    for n in range(20, 0, -1):
+        windows = pyautogui.getWindowsWithTitle(f'Part{n}')
+        if windows != []:
+            windows[0].activate()
+        pyautogui.hotkey('win', 'up')
 
 def selectTopPlane():
     swApp = win32com.client.Dispatch('SldWorks.Application')
-    swModel = swApp.ActiveDoc        
+    swModel = swApp.ActiveDoc
     swExt = swModel.Extension
     swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
 
@@ -117,7 +132,7 @@ def makeDriveHousing(app):
 
 def makeOutput(app):
     flipDirection = 8 # False
-    createOffsetPlaneFromTop(app.extrustionThickness*1.5, flipDirection)
+    createOffsetPlaneFromTop(app.extrustionThickness*1.3, flipDirection)
 
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc

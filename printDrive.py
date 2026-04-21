@@ -5,11 +5,24 @@ import subprocess
 import pyautogui
 
 
+'''
+AI gave me these modules and the functions 
+(and the variables assigned to these functions) in them, 
+however I wrote the logic for all the functions
+
+win32com.client: win32com.client.Dispatch('SldWorks.Application')
+os: os.getcwd(), os.path.join(scriptDirectory, 'fileName')
+subprocess: subprocess.Popen([bambuPath] + filePaths)
+
+I do not know how many of the functions/modules work on a low level, but I can 
+explain the step-by-step proccess used to get the solidwokrs file into the 
+3d printer slicer software, and from there how the .gcode file is saved
+'''
+
 def exportSolidBodies():
     scriptDirectory = os.getcwd()
     swApp = win32com.client.Dispatch('SldWorks.Application')
     model = swApp.ActiveDoc
-    
     bodies = model.GetBodies2(0, False)
     targetNames = ['Boss-Extrude1', 'Boss-Extrude5', 'Combine1', 'Boss-Extrude8']
 
@@ -22,14 +35,11 @@ def exportSolidBodies():
             savePath = rf'{scriptDirectory}\{bodyName}.stl'
             
             body.HideBody(False)
-            
             model.ClearSelection2(True)
             model.GraphicsRedraw2()
             time.sleep(1.0)
-            
             model.SaveAs3(savePath, 0, 1)
             time.sleep(0.5)
-            
             body.HideBody(True)
 
     for body in bodies:
@@ -57,10 +67,11 @@ def launchSlicerWithParts():
     ]
     openBambuStudio(stlFiles)
 
-    time.sleep(30)
-    pyautogui.press('tab')
-    pyautogui.press('enter')
-    time.sleep(2)
+    time.sleep(40)
+    pyautogui.press('esc')
+    time.sleep(1)
+    pyautogui.press('esc')
+    time.sleep(1)
 
 def arrangePartsAndSlice():
     pyautogui.press('esc')
@@ -91,6 +102,5 @@ def cleanupStls():
         os.path.join(scriptDirectory, 'Combine1.stl'),
         os.path.join(scriptDirectory, 'Boss-Extrude8.stl')
     ]
-    
     for file in stlFiles:
         os.remove(file)
