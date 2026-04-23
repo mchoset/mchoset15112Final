@@ -5,9 +5,30 @@ import math
 import pyautogui
 import time
 
+'''
+AI gave me these modules, functions, and functions that can occur from the 
+variables assigned to these functions, 
+however I wrote the general logic for all the functions, and can explain it
+in my oral assesment
+
+win32com.client: win32com.client.Dispatch('SldWorks.Application')
+os: os.getcwd(), os.path.join(scriptDirectory, 'fileName')
+subprocess: subprocess.Popen([bambuPath] + filePaths)
+
+I do not know how many of the functions/modules work on a low level, but I can 
+explain the step-by-step proccess used to generate the disk within solidworks.
+
+AI wrote for me every line that pythoncom occurs in
+'''
+
+
 def minimizeWindow():
     currentWindow = pyautogui.getActiveWindow()
     currentWindow.minimize()
+
+def maximizeWindow():
+    window = pyautogui.getWindowsWithTitle('main')[0]
+    window.maximize()
 
 def getRadiusEndpoints(cx, cy, r, theta):
     return (cx + r*math.cos(math.radians(theta)), 
@@ -19,8 +40,9 @@ def createNewPart():
     templatePath = swApp.GetUserPreferenceStringValue(8)
     swModel = swApp.NewDocument(templatePath, 0, 0, 0)
     swModel.Extension
+    minimizeWindow()
     goFullscreen()
-
+    
 def goFullscreen():
     time.sleep(5)
     for n in range(20, 0, -1):
@@ -150,9 +172,7 @@ def makeOutput(app):
 
 def combineHousingBodies():
     swApp = win32com.client.Dispatch('SldWorks.Application')
-    
     scriptDir = os.getcwd()
     macroPath = os.path.join(scriptDir, 'combineMacro.swp')
     errorCode = win32com.client.VARIANT(pythoncom.VT_BYREF|pythoncom.VT_I4, 0)
-    
     swApp.RunMacro2(macroPath, 'combineMacro1', 'main', 0, errorCode)

@@ -4,11 +4,11 @@ import time
 import subprocess
 import pyautogui
 
-
 '''
-AI gave me these modules and the functions 
-(and the variables assigned to these functions) in them, 
-however I wrote the logic for all the functions
+AI gave me these modules, functions, and functions that can occur from the 
+variables assigned to these functions, 
+however I wrote the general logic for all the functions (unless othewise noted),
+and can explain it in my oral assesment
 
 win32com.client: win32com.client.Dispatch('SldWorks.Application')
 os: os.getcwd(), os.path.join(scriptDirectory, 'fileName')
@@ -19,13 +19,12 @@ explain the step-by-step proccess used to get the solidwokrs file into the
 3d printer slicer software, and from there how the .gcode file is saved
 '''
 
-def exportSolidBodies():
+def exportSolidBodies(): 
     scriptDirectory = os.getcwd()
     swApp = win32com.client.Dispatch('SldWorks.Application')
     model = swApp.ActiveDoc
     bodies = model.GetBodies2(0, False)
     targetNames = ['Boss-Extrude1', 'Boss-Extrude5', 'Combine1', 'Boss-Extrude8']
-
     for body in bodies:
         body.HideBody(True)
 
@@ -33,7 +32,6 @@ def exportSolidBodies():
         bodyName = body.Name
         if bodyName in targetNames:
             savePath = rf'{scriptDirectory}\{bodyName}.stl'
-            
             body.HideBody(False)
             model.ClearSelection2(True)
             model.GraphicsRedraw2()

@@ -84,6 +84,8 @@ def onAppStart(app):
 
     app.resolution = 500
     app.centeredGearPoints = generateXYPoints(app, 0, 2*math.pi, app.resolution)
+    
+    app.fullScreen = False
 
 # ----------------------------------DRAWING-------------------------------------
 
@@ -97,15 +99,16 @@ def redrawAll(app):
     drawButton(app)
     drawArrows(app)
 
-def drawInputBox(x, y, width, height, labelText, valueText, keybind):
+def drawInputBox(x, y, width, height, labelText, value, keybind):
     drawLabel(labelText, x, y - 10, align='left', size=14, bold=True)
     drawLabel(f'Key: {keybind}', x + width, y - 10, align='right', size=12, fill='dimgray', bold=True)
     drawRect(x, y, width, height, fill='white', border='lightgray', borderWidth=2)
-    drawLabel(valueText, x + 10, y + height/2, align='left', size=16)
+    drawLabel(value, x + 10, y + height/2, align='left', size=16)
 
 def drawLabels(app):
-    marginSize = 20
-    boxW = (app.width - marginSize*5)/4
+    '''AI made the boxes look cleaner. It added in the margin idea/space btwn boxes outlining the buttons'''
+    marginSize = 20 # AI
+    boxW = (app.width - marginSize*5)/4 # AI
     boxH = 40
     startY0 = 40
     startY1 = 120
@@ -134,7 +137,6 @@ def drawButton(app):
     btnWidth = app.width*0.4
     btnHeight = app.height*0.1
     btnCenterY = app.height*0.92
-    
     btn1CenterX = app.width*0.28
     btn2CenterX = app.width*0.72
 
@@ -158,7 +160,6 @@ def drawGear(app):
 def drawGearHoles(app):
     drawCircle(app.currentDiskCenterX, app.currentDiskCenterY, 
                app.camShaftRadius*app.scalar, fill='gray')
-    
     holeRadius = app.outputShaftRadius + app.e
     for i in range(app.numOutputShafts):
         thetaDeg = i*(360/app.numOutputShafts) + app.diskAngleDeg
@@ -171,7 +172,6 @@ def drawGearHoles(app):
 def drawInputShaft(app):
     cx = app.width/2
     cy = app.verticalGearShift
-
     inputShaftRadius = (app.camShaftRadius - app.e)*app.scalar
     drawCircle(cx, cy, inputShaftRadius, fill='darkGray')
     indicatorX, indicatorY = getRadiusEndpoints(cx, cy, inputShaftRadius, 
@@ -196,7 +196,7 @@ def drawExternalPins(app):
     for i in range(app.Np):
         angleDeg = i*(360/app.Np)
         cx, cy = getRadiusEndpoints(centerX, centerY, 
-                                    app.R*app.scalar, -angleDeg)
+                                    app.R*app.scalar, angleDeg)
         scaledPinRadius = app.r*app.scalar
         drawCircle(cx, cy, scaledPinRadius, fill='green')
 
@@ -207,6 +207,7 @@ def drawDownArrow(cx, cy):
     drawPolygon(cx, cy + 5, cx - 6, cy - 5, cx + 6, cy - 5, fill='black')
 
 def drawArrows(app):
+    '''AI gave me the code to figure out the center of the triangles'''
     marginSize = 20
     boxWidth = (app.width-marginSize*5)/4
     boxHeight = 40
@@ -214,16 +215,18 @@ def drawArrows(app):
 
     for rowY in yValues:
         for arrowCol in range(4):
-            boxLeftX = marginSize*(arrowCol + 1) + boxWidth*arrowCol
-            arrowCx = boxLeftX + boxWidth - 15
-            upArrowCy = rowY + boxHeight/2 - 8
-            downArrowCy = rowY + boxHeight/2 + 8
-            
+            boxLeftX = marginSize*(arrowCol + 1) + boxWidth*arrowCol # AI
+            arrowCx = boxLeftX + boxWidth - 15 # AI
+            upArrowCy = rowY + boxHeight/2 - 8 # AI
+            downArrowCy = rowY + boxHeight/2 + 8 # AI
             drawUpArrow(arrowCx, upArrowCy)
             drawDownArrow(arrowCx, downArrowCy)
 
 # ---------------------------Changing Stuff-------------------------------------
 def onStep(app):
+    if app.fullScreen == False:
+        exportDrive.maximizeWindow()
+        app.fullScreen = True
     app.scalar = app.height/(app.R*5)
     app.verticalGearShift = app.height*13/24
     if not app.paused:
@@ -233,7 +236,6 @@ def takeStep(app):
     stepAmount = 5
     app.shaftAngleDeg += stepAmount
     app.diskAngleDeg -= stepAmount/(app.Np-1)
-
     app.scaledEccentricity = app.e*app.scalar
     app.currentDiskCenterX, app.currentDiskCenterY = (getRadiusEndpoints
                                                       (app.width/2, 
@@ -246,6 +248,10 @@ def onMousePress(app, mouseX, mouseY):
     checkArrows(app, mouseX, mouseY)
 
 def checkArrows(app, mouseX, mouseY):
+    '''
+    AI Wrote the code for the hitboxes of the arrows
+    '''
+    # Starts here
     marginSize = 20
     boxWidth = (app.width - marginSize*5)/4
     boxHeight = 40
@@ -253,10 +259,6 @@ def checkArrows(app, mouseX, mouseY):
     startY1 = 120
     hitboxSize = 10
 
-    '''
-    AI Wrote the code for the hitboxes of the arrows
-    '''
-    # Starts here
     col0ArrowCx = marginSize*1 + boxWidth - 15
     col1ArrowCx = marginSize*2 + boxWidth*1 + boxWidth - 15
     col2ArrowCx = marginSize*3 + boxWidth*2 + boxWidth - 15
@@ -481,7 +483,6 @@ os.remove(os.path.join(os.path.dirname(__file__), fileName))
 '''
 
 def exportDriveTo3DP(app):
-    exportDrive.minimizeWindow()
     importGearToSldwrks(app)
     importStationaryPinsToSldwrks(app)
     importOutputPinsToSldwrks(app)
