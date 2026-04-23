@@ -6,12 +6,19 @@ import pyautogui
 
 '''
 AI gave me these modules, functions, and functions that can occur from the 
-variables assigned to these functions, 
-however I wrote the general logic for all the functions (unless othewise noted),
-and can explain it in my oral assesment
+variables assigned to these functions, however I wrote the logic for 
+all the functions, and can explain it in my oral assesment
 
-win32com.client: win32com.client.Dispatch('SldWorks.Application')
-os: os.getcwd(), os.path.join(scriptDirectory, 'fileName')
+A better way to describe my AI use in this file would be I used AI as a way
+to generate documentation for using the Solidworks and Bambu API via python 
+(there is minimal online). Using that documentation I was able to build the 
+code that creates the cyclodial drive in solidworks.
+
+win32com.client: win32com.client.Dispatch('SldWorks.Application') <-- creates COM object
+    --> AI gave me all the methods I can use w/ the COM object
+
+os: os.getcwd(), os.path.join(scriptDirectory, 'fileName') <-- for file handling
+
 subprocess: subprocess.Popen([bambuPath] + filePaths)
 
 I do not know how many of the functions/modules work on a low level, but I can 
@@ -53,7 +60,7 @@ def generateGcode():
 
 def openBambuStudio(filePaths):
     bambuPath = r'C:\Program Files\Bambu Studio\bambu-studio.exe'
-    subprocess.Popen([bambuPath] + filePaths)
+    subprocess.Popen([bambuPath] + filePaths) #AI
 
 def launchSlicerWithParts():
     scriptDirectory = os.getcwd()
@@ -63,7 +70,7 @@ def launchSlicerWithParts():
         os.path.join(scriptDirectory, 'Combine1.stl'),
         os.path.join(scriptDirectory, 'Boss-Extrude8.stl')
     ]
-    openBambuStudio(stlFiles)
+    openBambuStudio(stlFiles) # AI
 
     time.sleep(40)
     pyautogui.press('esc')
@@ -84,11 +91,9 @@ def exportGcode():
     time.sleep(7.5)
     pyautogui.hotkey('ctrl', 'g')
     time.sleep(2)
-
     scriptDirectory = os.getcwd()
     exportPath = os.path.join(scriptDirectory, 'cycloidalDrive.gcode.3mf')
     pyautogui.write(exportPath)
-    
     time.sleep(1)
     pyautogui.press('enter')
 

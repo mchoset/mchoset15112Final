@@ -7,28 +7,33 @@ import time
 
 '''
 AI gave me these modules, functions, and functions that can occur from the 
-variables assigned to these functions, 
-however I wrote the general logic for all the functions, and can explain it
-in my oral assesment
+variables assigned to these functions, however I wrote the general logic for 
+all the functions, and can explain it in my oral assesment
 
-win32com.client: win32com.client.Dispatch('SldWorks.Application')
-os: os.getcwd(), os.path.join(scriptDirectory, 'fileName')
-subprocess: subprocess.Popen([bambuPath] + filePaths)
+A better way to describe my AI use in this file would be I used AI as a way
+to generate documentation for using the Solidworks API via python (there is 
+minimal online). Using that documentation I was able to build the code that 
+creates the cyclodial drive in solidworks.
+
+----------------------------------- AI CODE -----------------------------------
+win32com.client: win32com.client.Dispatch('SldWorks.Application') <-- creates COM object
+    --> AI gave me all the methods I can use w/ the COM object
+
+
+os: os.getcwd(), os.path.join(scriptDirectory, 'fileName') <-- for file handling
+
+*AI wrote for me every line that pythoncom occurs in
+-------------------------------------------------------------------------------
 
 I do not know how many of the functions/modules work on a low level, but I can 
 explain the step-by-step proccess used to generate the disk within solidworks.
-
-AI wrote for me every line that pythoncom occurs in
 '''
 
-
 def minimizeWindow():
-    currentWindow = pyautogui.getActiveWindow()
-    currentWindow.minimize()
+    pyautogui.hotkey('win', 'down')
 
 def maximizeWindow():
-    window = pyautogui.getWindowsWithTitle('main')[0]
-    window.maximize()
+    pyautogui.hotkey('win', 'up')
 
 def getRadiusEndpoints(cx, cy, r, theta):
     return (cx + r*math.cos(math.radians(theta)), 
@@ -67,7 +72,7 @@ def importDxf(dxfFileName):
 def extrudeSketch(depth, flipDirection, merge):
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
-    swModel.FeatureManager.FeatureExtrusion3(
+    swModel.FeatureManager.FeatureExtrusion3( # AI gave me the extrusion feature (including all of its parameters)
         True,           # 1: Single direction
         False,          # 2: Flip side to cut
         flipDirection,  # 3: Direction
@@ -97,9 +102,7 @@ def createOffsetPlaneFromTop(distance, flipDirection):
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
     swExt = swModel.Extension
-
     swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
-    
     swModel.FeatureManager.InsertRefPlane(flipDirection, distance, 0, 0.0, 0, 0.0)
 
 def importAndCreateNewPart(dxfFileName, depth, flipExtrudeDirection, merge):
@@ -126,10 +129,8 @@ def makeDriveHousing(app):
     
     innerRadius = app.R/1000
     outerRadius = app.R/1000 + app.r/1000
-    
     swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, innerRadius)
     swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, outerRadius)
-
     flipDirection = False
     merge = True
     extrudeSketch(app.extrustionThickness*1.25, flipDirection, merge)
@@ -139,13 +140,10 @@ def makeDriveHousing(app):
     swModel = swApp.ActiveDoc
     swModel.InsertSketch2(True)
     swSketchManager = swModel.SketchManager
-    
     innerRadius = app.camShaftRadius/1000 + app.e/1000 + app.tolerance
     outerRadius = app.R/1000 + app.r/1000
-    
     swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, innerRadius)
     swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, outerRadius)
-
     flipDirection = True
     merge = False
     extrudeSketch(app.extrustionThickness/4, flipDirection, merge) 
@@ -155,17 +153,13 @@ def makeDriveHousing(app):
 def makeOutput(app):
     flipDirection = 8 # False
     createOffsetPlaneFromTop(app.extrustionThickness*1.3, flipDirection)
-
     swApp = win32com.client.Dispatch('SldWorks.Application')
     swModel = swApp.ActiveDoc
     swExt = swModel.Extension
-
     swExt.SelectByID2('Plane6', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
-
     swModel.InsertSketch2(True)
     swSketchManager = swModel.SketchManager
     swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, (app.outputShaftDistFromCenter+app.outputShaftRadius)/1000)
-
     flipDirection = False
     merge = True
     extrudeSketch(app.extrustionThickness/4, flipDirection, merge)
@@ -174,5 +168,5 @@ def combineHousingBodies():
     swApp = win32com.client.Dispatch('SldWorks.Application')
     scriptDir = os.getcwd()
     macroPath = os.path.join(scriptDir, 'combineMacro.swp')
-    errorCode = win32com.client.VARIANT(pythoncom.VT_BYREF|pythoncom.VT_I4, 0)
+    errorCode = win32com.client.VARIANT(pythoncom.VT_BYREF|pythoncom.VT_I4, 0) # AI
     swApp.RunMacro2(macroPath, 'combineMacro1', 'main', 0, errorCode)

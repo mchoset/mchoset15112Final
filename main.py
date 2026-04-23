@@ -29,22 +29,19 @@ def getRadiusEndpoints(cx, cy, r, theta):
 def distance(x0, y0, x1, y1):
     return math.sqrt((x1-x0)**2 + (y1-y0)**2)
 
-def generateXYPoints(app, tStart, tEnd, numPoints): # WILL RESULT IN GEAR CENTERED AT ORIGIN
-    stepSize = (tEnd - tStart)/(numPoints - 1)
+def generateXYPoints(app, parameterStart, parameterEnd, numPoints):
+    stepSize = (parameterEnd - parameterStart)/(numPoints - 1)
     R = app.R
     e = app.e
     Np = app.Np
     r = app.r
-
     coordinates = []
     for i in range(numPoints):
-        t = tStart + i*stepSize
+        t = parameterStart + i*stepSize
         phaseAngle = (math.atan2(math.sin((1 - Np)*t),
                                  ((R/(e*Np))-math.cos((1 - Np)*t))))
-        
         x = ((R*math.cos(t) - r*math.cos(t + phaseAngle) - 
               e*math.cos(Np*t)))
-        
         y = ((-R*math.sin(t) + r*math.sin(t + phaseAngle) + 
              e*math.sin(Np*t)))
         coordinates.append((x, y))
@@ -101,37 +98,39 @@ def redrawAll(app):
 
 def drawInputBox(x, y, width, height, labelText, value, keybind):
     drawLabel(labelText, x, y - 10, align='left', size=14, bold=True)
-    drawLabel(f'Key: {keybind}', x + width, y - 10, align='right', size=12, fill='dimgray', bold=True)
+    drawLabel(f'Key: {keybind}', x + width, y - 10, align='right', size=12, 
+              fill='gray', bold=True)
     drawRect(x, y, width, height, fill='white', border='lightgray', borderWidth=2)
     drawLabel(value, x + 10, y + height/2, align='left', size=16)
 
 def drawLabels(app):
     '''AI made the boxes look cleaner. It added in the margin idea/space btwn boxes outlining the buttons'''
     marginSize = 20 # AI
-    boxW = (app.width - marginSize*5)/4 # AI
-    boxH = 40
+    boxWidth = (app.width - marginSize*5)/4 # AI
+    boxHeight = 40
     startY0 = 40
     startY1 = 120
-
-    drawInputBox(marginSize, startY0, boxW, boxH,
-                 'Number of Pins', str(app.Np) + f'   (Gear Ratio {app.Np-1}:1)', 'Up/Down')
-    drawInputBox(marginSize*2 + boxW, startY0, boxW, boxH,
+    drawInputBox(marginSize, startY0, boxWidth, boxHeight,
+                 'Number of Pins', f'{app.Np}' + f'   (Gear Ratio {app.Np-1}:1)', 
+                 'Up/Down')
+    drawInputBox(marginSize*2 + boxWidth, startY0, boxWidth, boxHeight,
                  'Pin Circle Radius', f'{app.R} mm', 'Left/Right')
-    drawInputBox(marginSize*3 + boxW*2, startY0, boxW, boxH,
+    drawInputBox(marginSize*3 + boxWidth*2, startY0, boxWidth, boxHeight,
                  'Eccentricity', f'{app.e} mm', 'W/S')
-    drawInputBox(marginSize*4 + boxW*3, startY0, boxW, boxH,
+    drawInputBox(marginSize*4 + boxWidth*3, startY0, boxWidth, boxHeight,
                  'External Pin Radius', f'{app.r} mm', 'Q/A')
-    drawInputBox(marginSize, startY1, boxW, boxH,
+    drawInputBox(marginSize, startY1, boxWidth, boxHeight,
                  'Cam Shaft Radius', f'{app.camShaftRadius} mm', 'I/K')
-    drawInputBox(marginSize*2 + boxW, startY1, boxW, boxH,
-                 'Output Pins', str(app.numOutputShafts), 'T/G')
-    drawInputBox(marginSize*3 + boxW*2, startY1, boxW, boxH,
+    drawInputBox(marginSize*2 + boxWidth, startY1, boxWidth, boxHeight,
+                 'Output Pins', f'{app.numOutputShafts}', 'T/G')
+    drawInputBox(marginSize*3 + boxWidth*2, startY1, boxWidth, boxHeight,
                  'Output Pin Radius', f'{app.outputShaftRadius} mm', 'Y/H')
-    drawInputBox(marginSize*4 + boxW*3, startY1, boxW, boxH,
-                 'Output Pin Circle Radius', f'{app.outputShaftDistFromCenter} mm', 'U/J')
-
+    drawInputBox(marginSize*4 + boxWidth*3, startY1, boxWidth, boxHeight,
+                 'Output Pin Circle Radius', 
+                 f'{app.outputShaftDistFromCenter} mm', 'U/J')
     pausedStatus = 'unpause' if app.paused else 'pause'
-    drawLabel(f"Press P to {pausedStatus}", app.width/2, startY1 + boxH + 25, size=16, bold=True)
+    drawLabel(f'Press P to {pausedStatus}', app.width/2, 
+              startY1 + boxHeight + 25, size=16, bold=True)
 
 def drawButton(app):
     btnWidth = app.width*0.4
@@ -139,12 +138,10 @@ def drawButton(app):
     btnCenterY = app.height*0.92
     btn1CenterX = app.width*0.28
     btn2CenterX = app.width*0.72
-
     drawRect(btn1CenterX, btnCenterY, btnWidth, btnHeight, fill='blue', 
              border='black', borderWidth=5, align='center')
     drawLabel('Generate DXF', btn1CenterX, btnCenterY, 
               size=app.height*0.04, bold=True, fill='white')
-
     drawRect(btn2CenterX, btnCenterY, btnWidth, btnHeight, fill='red', 
              border='black', borderWidth=5, align='center')
     drawLabel('Export to Sldwrks & 3DP', btn2CenterX, btnCenterY, 
@@ -181,7 +178,6 @@ def drawInputShaft(app):
 def drawOutputShafts(app):
     extPinsCenterX = app.width/2
     extPinsCenterY = app.verticalGearShift
-    
     for i in range(app.numOutputShafts):
         angleDeg = i*(360/app.numOutputShafts) + app.diskAngleDeg
         cx, cy = getRadiusEndpoints(extPinsCenterX, extPinsCenterY, 
@@ -192,7 +188,6 @@ def drawOutputShafts(app):
 def drawExternalPins(app):
     centerX = app.width/2
     centerY = app.verticalGearShift
-    
     for i in range(app.Np):
         angleDeg = i*(360/app.Np)
         cx, cy = getRadiusEndpoints(centerX, centerY, 
@@ -201,24 +196,24 @@ def drawExternalPins(app):
         drawCircle(cx, cy, scaledPinRadius, fill='green')
 
 def drawUpArrow(cx, cy):
-    drawPolygon(cx, cy - 5, cx - 6, cy + 5, cx + 6, cy + 5, fill='black')
+    drawPolygon(cx, cy-5, cx-6, cy+5, cx+6, cy+5, fill='black')
 
 def drawDownArrow(cx, cy):
-    drawPolygon(cx, cy + 5, cx - 6, cy - 5, cx + 6, cy - 5, fill='black')
+    drawPolygon(cx, cy+5, cx-6, cy-5, cx+6, cy-5, fill='black')
 
 def drawArrows(app):
     '''AI gave me the code to figure out the center of the triangles'''
     marginSize = 20
-    boxWidth = (app.width-marginSize*5)/4
-    boxHeight = 40
-    yValues = [40, 120]
+    boxWidthidth = (app.width-marginSize*5)/4
+    boxHeighteight = 40
+    boxYValues = [40, 120]
 
-    for rowY in yValues:
+    for boxY in boxYValues:
         for arrowCol in range(4):
-            boxLeftX = marginSize*(arrowCol + 1) + boxWidth*arrowCol # AI
-            arrowCx = boxLeftX + boxWidth - 15 # AI
-            upArrowCy = rowY + boxHeight/2 - 8 # AI
-            downArrowCy = rowY + boxHeight/2 + 8 # AI
+            boxLeftX = marginSize*(arrowCol + 1) + boxWidthidth*arrowCol # AI
+            arrowCx = boxLeftX + boxWidthidth - 15 # AI
+            upArrowCy = boxY + boxHeighteight/2 - 8 # AI
+            downArrowCy = boxY + boxHeighteight/2 + 8 # AI
             drawUpArrow(arrowCx, upArrowCy)
             drawDownArrow(arrowCx, downArrowCy)
 
@@ -233,9 +228,9 @@ def onStep(app):
         takeStep(app)
 
 def takeStep(app):
-    stepAmount = 5
-    app.shaftAngleDeg += stepAmount
-    app.diskAngleDeg -= stepAmount/(app.Np-1)
+    dTheta = 5
+    app.shaftAngleDeg += dTheta
+    app.diskAngleDeg -= dTheta/(app.Np-1)
     app.scaledEccentricity = app.e*app.scalar
     app.currentDiskCenterX, app.currentDiskCenterY = (getRadiusEndpoints
                                                       (app.width/2, 
@@ -253,22 +248,22 @@ def checkArrows(app, mouseX, mouseY):
     '''
     # Starts here
     marginSize = 20
-    boxWidth = (app.width - marginSize*5)/4
-    boxHeight = 40
+    boxWidthidth = (app.width - marginSize*5)/4
+    boxHeighteight = 40
     startY0 = 40
     startY1 = 120
     hitboxSize = 10
 
-    col0ArrowCx = marginSize*1 + boxWidth - 15
-    col1ArrowCx = marginSize*2 + boxWidth*1 + boxWidth - 15
-    col2ArrowCx = marginSize*3 + boxWidth*2 + boxWidth - 15
-    col3ArrowCx = marginSize*4 + boxWidth*3 + boxWidth - 15
+    col0ArrowCx = marginSize*1 + boxWidthidth - 15
+    col1ArrowCx = marginSize*2 + boxWidthidth*1 + boxWidthidth - 15
+    col2ArrowCx = marginSize*3 + boxWidthidth*2 + boxWidthidth - 15
+    col3ArrowCx = marginSize*4 + boxWidthidth*3 + boxWidthidth - 15
 
-    row0UpArrowCy = startY0 + boxHeight/2 - 8
-    row0DownArrowCy = startY0 + boxHeight/2 + 8
+    row0UpArrowCy = startY0 + boxHeighteight/2 - 8
+    row0DownArrowCy = startY0 + boxHeighteight/2 + 8
     
-    row1UpCy = startY1 + boxHeight/2 - 8
-    row1DownCy = startY1 + boxHeight/2 + 8
+    row1UpCy = startY1 + boxHeighteight/2 - 8
+    row1DownCy = startY1 + boxHeighteight/2 + 8
     # Ends Here
 
     if (col0ArrowCx - hitboxSize <= mouseX <= col0ArrowCx + hitboxSize and 
@@ -347,14 +342,11 @@ def checkDxfButton(app, mouseX, mouseY):
     btnWidth = app.width*0.4
     btnHeight = app.height*0.1
     btnCenterY = app.height*0.92
-    
     btn1CenterX = app.width*0.28
     btn2CenterX = app.width*0.72
-
     if ((btn1CenterX - btnWidth/2 < mouseX < btn1CenterX + btnWidth/2) and 
         (btnCenterY - btnHeight/2 < mouseY < btnCenterY + btnHeight/2)):
         generateDxf(app)
-
     if ((btn2CenterX - btnWidth/2 < mouseX < btn2CenterX + btnWidth/2) and 
         (btnCenterY - btnHeight/2 < mouseY < btnCenterY + btnHeight/2)):
         exportDriveTo3DP(app)
@@ -407,7 +399,6 @@ def onKeyPress(app, key):
         app.outputShaftDistFromCenter -= 0.5
     else:
         return
-        
     if checkValidParameters(app):
         app.diskAngleDeg = 0
         app.shaftAngleDeg = 0
@@ -478,6 +469,10 @@ msp.add_lwpolyline
 msp.add_circle
 doc.saveas(fileName)
 
+The process for drawing a line/circle in a dxf file is almost the exactly the
+as doing it in cmu_graphics. AI gave the syntax to create/edit the dxf files
+using the ezdxf module
+
 These commands from the os module and the variables they were assigned to were written by AI:
 os.remove(os.path.join(os.path.dirname(__file__), fileName))
 '''
@@ -504,20 +499,18 @@ def importGearToSldwrks(app):
     doc = ezdxf.new()
     msp = doc.modelspace()
     msp.add_lwpolyline(coordinates, close=True)
-
     for i in range(numOut): # output holes
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance)
-
-    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance)
-
+    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance/2)
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
     doc.saveas(fileName)
 
     flipDirection = False
     merge = False
-    exportDrive.importAndCreateNewPart(fileName, app.extrustionThickness, flipDirection, merge)
+    exportDrive.importAndCreateNewPart(fileName, app.extrustionThickness, 
+                                       flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importStationaryPinsToSldwrks(app):
@@ -527,18 +520,17 @@ def importStationaryPinsToSldwrks(app):
 
     doc = ezdxf.new()
     msp = doc.modelspace()
-
     for i in range(Np): # ext pins
         thetaDeg = i*(360/Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=r/1000 - app.tolerance)
-
     fileName = 'extPinsTemp.dxf'
     doc.saveas(fileName)
     
     flipDirection = False
     merge = False
-    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.25, flipDirection, merge)
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.25, 
+                                     flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importOutputPinsToSldwrks(app):
@@ -548,18 +540,17 @@ def importOutputPinsToSldwrks(app):
 
     doc = ezdxf.new()
     msp = doc.modelspace()
-
     for i in range(numOut): # output pins
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(0, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=outR/1000)
-
     fileName = 'outputPinsTemp.dxf'
     doc.saveas(fileName)
     
     flipDirection = False
     merge = False
-    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.3, flipDirection, merge)
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.3, 
+                                     flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
 def importInputShaftToSldwrks(app):
@@ -569,15 +560,14 @@ def importInputShaftToSldwrks(app):
 
     doc = ezdxf.new()
     msp = doc.modelspace()
-
     msp.add_circle((e/1000, 0), radius=camRadius/1000)
-
     fileName = 'inputShaftTemp1.dxf'
     doc.saveas(fileName)
     
     flipDirection = False
     merge = False
-    exportDrive.importToExistingPart(fileName, app.extrustionThickness, flipDirection, merge)
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness, 
+                                     flipDirection, merge)
     os.remove(os.path.join(os.path.dirname(__file__), fileName))
 
     # ------------ Cam Shaft -> Input Shaft ---------------
@@ -585,7 +575,6 @@ def importInputShaftToSldwrks(app):
     msp = doc.modelspace()
 
     msp.add_circle((0, 0), radius=(inputShaftRadius/1000)*0.75)
-
     fileName = 'inputShaftTemp2.dxf'
     doc.saveas(fileName)
     
@@ -607,25 +596,19 @@ def generateDxf(app):
     inputShaftRadius = camRadius - e
     
     coordinates = [((x + e)/1000, (y/1000)) for x, y in app.centeredGearPoints]
-
     doc = ezdxf.new()
     msp = doc.modelspace()
-    
     msp.add_lwpolyline(coordinates, close=True)
-    
     msp.add_circle((e/1000, 0), radius=camRadius/1000)
     msp.add_circle((0, 0), radius=inputShaftRadius/1000)
-
     for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=holeRadius/1000)
-
     for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(0, 0, outDist/1000, -thetaDeg)
         msp.add_circle((cx, cy), radius=outR/1000)
-
     for i in range(Np):
         thetaDeg = i*(360/Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
