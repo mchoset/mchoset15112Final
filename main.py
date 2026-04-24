@@ -18,6 +18,11 @@ FEATURE LIST
    app.
 '''
 
+'''
+Grading shorcut:
+Press 'X' or 'x' to create the solidworks & .gcode file
+'''
+
 
 '''
 *** All AI use was with Gemini 3.1 Pro***
@@ -371,6 +376,10 @@ def checkDxfButton(app, mouseX, mouseY):
         exportDriveTo3DP(app)
 
 def onKeyPress(app, key):
+    if key in ['x', 'X']:
+        exportDriveTo3DP(app)
+        return
+
     if key in ['p', 'P']:
         app.paused = not app.paused
         return
@@ -452,7 +461,7 @@ def checkValidParameters(app):
     minThickness = 2
 
 # ----------------- These conditions were found by AI --------------------------
-# I will exempt lines 442-462 (all the conditions the gear must meet)
+# I will exempt lines 464-486 (all the conditions the gear must meet)
     distBetweenOutputHoleAndEdge = 2*outputDist*math.sin(math.pi/numOutput)
     if R < e*(Np ** 2):
         minRho = ((R - e*Np)**2)/(e*(Np**2) - R) 
