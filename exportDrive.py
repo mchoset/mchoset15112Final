@@ -6,6 +6,10 @@ import pyautogui
 import time
 
 '''
+*** All AI use was with Gemini 3.1 Pro***
+'''
+
+'''
 AI gave me these modules, functions, and functions that can occur from the 
 variables assigned to these functions, however I wrote the general logic for 
 all the functions, and can explain it in my oral assesment
@@ -40,11 +44,11 @@ def getRadiusEndpoints(cx, cy, r, theta):
             cy - r*math.sin(math.radians(theta)))
 
 def createNewPart():
-    swApp = win32com.client.Dispatch('SldWorks.Application')
-    swApp.Visible = True
-    templatePath = swApp.GetUserPreferenceStringValue(8)
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
+    swApp.Visible = True # AI
+    templatePath = swApp.GetUserPreferenceStringValue(8) # AI
     swModel = swApp.NewDocument(templatePath, 0, 0, 0)
-    swModel.Extension
+    swModel.Extension # AI
     minimizeWindow()
     goFullscreen()
     
@@ -57,22 +61,23 @@ def goFullscreen():
         pyautogui.hotkey('win', 'up')
 
 def selectTopPlane():
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
-    swExt = swModel.Extension
-    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
+    swExt = swModel.Extension # AI
+    swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, 
+                      pythoncom.Nothing, 0)
 
 def importDxf(dxfFileName):
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
     scriptDir = os.path.dirname(os.path.abspath(__file__))
     dxfPath = os.path.join(scriptDir, dxfFileName)
     swModel.FeatureManager.InsertDwgOrDxfFile(dxfPath)
 
 def extrudeSketch(depth, flipDirection, merge):
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
-    swModel.FeatureManager.FeatureExtrusion3( # AI gave me the extrusion feature (including all of its parameters)
+    swModel.FeatureManager.FeatureExtrusion3( # AI
         True,           # 1: Single direction
         False,          # 2: Flip side to cut
         flipDirection,  # 3: Direction
@@ -99,9 +104,9 @@ def extrudeSketch(depth, flipDirection, merge):
     )
 
 def createOffsetPlaneFromTop(distance, flipDirection):
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
-    swExt = swModel.Extension
+    swExt = swModel.Extension # AI
     swExt.SelectByID2('Top Plane', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
     swModel.FeatureManager.InsertRefPlane(flipDirection, distance, 0, 0.0, 0, 0.0)
 
@@ -122,10 +127,10 @@ def finishSolidworksModeling(app):
 
 def makeDriveHousing(app):
     selectTopPlane()
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
     swModel.InsertSketch2(True)
-    swSketchManager = swModel.SketchManager
+    swSketchManager = swModel.SketchManager # AI
     
     innerRadius = app.R/1000
     outerRadius = app.R/1000 + app.r/1000
@@ -136,7 +141,7 @@ def makeDriveHousing(app):
     extrudeSketch(app.extrustionThickness*1.25, flipDirection, merge)
 
     selectTopPlane()
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
     swModel.InsertSketch2(True)
     swSketchManager = swModel.SketchManager
@@ -153,13 +158,16 @@ def makeDriveHousing(app):
 def makeOutput(app):
     flipDirection = 8 # False
     createOffsetPlaneFromTop(app.extrustionThickness*1.3, flipDirection)
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     swModel = swApp.ActiveDoc
-    swExt = swModel.Extension
-    swExt.SelectByID2('Plane6', 'PLANE', 0.0, 0.0, 0.0, False, 0, pythoncom.Nothing, 0)
+    swExt = swModel.Extension # AI
+    swExt.SelectByID2('Plane6', 'PLANE', 0.0, 0.0, 0.0, False, 0, 
+                      pythoncom.Nothing, 0)
     swModel.InsertSketch2(True)
     swSketchManager = swModel.SketchManager
-    swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, (app.outputShaftDistFromCenter+app.outputShaftRadius)/1000)
+    swSketchManager.CreateCircleByRadius(0.0, 0.0, 0.0, 
+                                         (app.outputShaftDistFromCenter+
+                                          app.outputShaftRadius)/1000)
     flipDirection = False
     merge = True
     extrudeSketch(app.extrustionThickness/4, flipDirection, merge)
@@ -169,4 +177,4 @@ def combineHousingBodies():
     scriptDir = os.getcwd()
     macroPath = os.path.join(scriptDir, 'combineMacro.swp')
     errorCode = win32com.client.VARIANT(pythoncom.VT_BYREF|pythoncom.VT_I4, 0) # AI
-    swApp.RunMacro2(macroPath, 'combineMacro1', 'main', 0, errorCode)
+    swApp.RunMacro2(macroPath, 'combineMacro1', 'main', 0, errorCode) # AI

@@ -5,6 +5,10 @@ import subprocess
 import pyautogui
 
 '''
+*** All AI use was with Gemini 3.1 Pro***
+'''
+
+'''
 AI gave me these modules, functions, and functions that can occur from the 
 variables assigned to these functions, however I wrote the logic for 
 all the functions, and can explain it in my oral assesment
@@ -21,16 +25,18 @@ os: os.getcwd(), os.path.join(scriptDirectory, 'fileName') <-- for file handling
 
 subprocess: subprocess.Popen([bambuPath] + filePaths)
 
+pyautogui: pyautogui.write(exportPath)
+
 I do not know how many of the functions/modules work on a low level, but I can 
 explain the step-by-step proccess used to get the solidwokrs file into the 
 3d printer slicer software, and from there how the .gcode file is saved
 '''
 
 def exportSolidBodies(): 
-    scriptDirectory = os.getcwd()
-    swApp = win32com.client.Dispatch('SldWorks.Application')
+    scriptDirectory = os.getcwd() # AI
+    swApp = win32com.client.Dispatch('SldWorks.Application') # AI
     model = swApp.ActiveDoc
-    bodies = model.GetBodies2(0, False)
+    bodies = model.GetBodies2(0, False) # AI
     targetNames = ['Boss-Extrude1', 'Boss-Extrude5', 'Combine1', 'Boss-Extrude8']
     for body in bodies:
         body.HideBody(True)
@@ -41,7 +47,7 @@ def exportSolidBodies():
             savePath = rf'{scriptDirectory}\{bodyName}.stl'
             body.HideBody(False)
             model.ClearSelection2(True)
-            model.GraphicsRedraw2()
+            model.GraphicsRedraw2() # AI
             time.sleep(1.0)
             model.SaveAs3(savePath, 0, 1)
             time.sleep(0.5)
@@ -70,7 +76,7 @@ def launchSlicerWithParts():
         os.path.join(scriptDirectory, 'Combine1.stl'),
         os.path.join(scriptDirectory, 'Boss-Extrude8.stl')
     ]
-    openBambuStudio(stlFiles) # AI
+    openBambuStudio(stlFiles)
 
     time.sleep(40)
     pyautogui.press('esc')
@@ -91,9 +97,9 @@ def exportGcode():
     time.sleep(7.5)
     pyautogui.hotkey('ctrl', 'g')
     time.sleep(2)
-    scriptDirectory = os.getcwd()
-    exportPath = os.path.join(scriptDirectory, 'cycloidalDrive.gcode.3mf')
-    pyautogui.write(exportPath)
+    scriptDirectory = os.getcwd() # AI
+    exportPath = os.path.join(scriptDirectory, 'cycloidalDrive.gcode.3mf') # AI
+    pyautogui.write(exportPath) # AI
     time.sleep(1)
     pyautogui.press('enter')
 

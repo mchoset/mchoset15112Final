@@ -5,6 +5,10 @@ import exportDrive
 import printDrive
 import os
 
+'''
+*** All AI use was with Gemini 3.1 Pro***
+'''
+
 # Equations given by AI that define the shape of the cycloidal disk
 '''
 --------------------------------------------------------------------------------
@@ -96,8 +100,8 @@ def redrawAll(app):
     drawButton(app)
     drawArrows(app)
 
-def drawInputBox(x, y, width, height, labelText, value, keybind):
-    drawLabel(labelText, x, y - 10, align='left', size=14, bold=True)
+def drawInputBox(x, y, width, height, label, value, keybind):
+    drawLabel(label, x, y - 10, align='left', size=14, bold=True)
     drawLabel(f'Key: {keybind}', x + width, y - 10, align='right', size=12, 
               fill='gray', bold=True)
     drawRect(x, y, width, height, fill='white', border='lightgray', borderWidth=2)
@@ -110,22 +114,22 @@ def drawLabels(app):
     boxHeight = 40
     startY0 = 40
     startY1 = 120
-    drawInputBox(marginSize, startY0, boxWidth, boxHeight,
+    drawInputBox(marginSize, startY0, boxWidth, boxHeight, # AI
                  'Number of Pins', f'{app.Np}' + f'   (Gear Ratio {app.Np-1}:1)', 
                  'Up/Down')
-    drawInputBox(marginSize*2 + boxWidth, startY0, boxWidth, boxHeight,
+    drawInputBox(marginSize*2 + boxWidth, startY0, boxWidth, boxHeight, # AI
                  'Pin Circle Radius', f'{app.R} mm', 'Left/Right')
-    drawInputBox(marginSize*3 + boxWidth*2, startY0, boxWidth, boxHeight,
+    drawInputBox(marginSize*3 + boxWidth*2, startY0, boxWidth, boxHeight, # AI
                  'Eccentricity', f'{app.e} mm', 'W/S')
-    drawInputBox(marginSize*4 + boxWidth*3, startY0, boxWidth, boxHeight,
+    drawInputBox(marginSize*4 + boxWidth*3, startY0, boxWidth, boxHeight, # AI
                  'External Pin Radius', f'{app.r} mm', 'Q/A')
-    drawInputBox(marginSize, startY1, boxWidth, boxHeight,
+    drawInputBox(marginSize, startY1, boxWidth, boxHeight, # AI
                  'Cam Shaft Radius', f'{app.camShaftRadius} mm', 'I/K')
-    drawInputBox(marginSize*2 + boxWidth, startY1, boxWidth, boxHeight,
+    drawInputBox(marginSize*2 + boxWidth, startY1, boxWidth, boxHeight, # AI
                  'Output Pins', f'{app.numOutputShafts}', 'T/G')
-    drawInputBox(marginSize*3 + boxWidth*2, startY1, boxWidth, boxHeight,
+    drawInputBox(marginSize*3 + boxWidth*2, startY1, boxWidth, boxHeight, # AI
                  'Output Pin Radius', f'{app.outputShaftRadius} mm', 'Y/H')
-    drawInputBox(marginSize*4 + boxWidth*3, startY1, boxWidth, boxHeight,
+    drawInputBox(marginSize*4 + boxWidth*3, startY1, boxWidth, boxHeight, # AI
                  'Output Pin Circle Radius', 
                  f'{app.outputShaftDistFromCenter} mm', 'U/J')
     pausedStatus = 'unpause' if app.paused else 'pause'
@@ -133,18 +137,18 @@ def drawLabels(app):
               startY1 + boxHeight + 25, size=16, bold=True)
 
 def drawButton(app):
-    btnWidth = app.width*0.4
-    btnHeight = app.height*0.1
-    btnCenterY = app.height*0.92
-    btn1CenterX = app.width*0.28
-    btn2CenterX = app.width*0.72
-    drawRect(btn1CenterX, btnCenterY, btnWidth, btnHeight, fill='blue', 
+    buttonWidth = app.width*0.4
+    buttonHeight = app.height*0.1
+    buttonCenterY = app.height*0.92
+    button1CenterX = app.width*0.28
+    button2CenterX = app.width*0.72
+    drawRect(button1CenterX, buttonCenterY, buttonWidth, buttonHeight, fill='blue', 
              border='black', borderWidth=5, align='center')
-    drawLabel('Generate DXF', btn1CenterX, btnCenterY, 
+    drawLabel('Generate DXF', button1CenterX, buttonCenterY, 
               size=app.height*0.04, bold=True, fill='white')
-    drawRect(btn2CenterX, btnCenterY, btnWidth, btnHeight, fill='red', 
+    drawRect(button2CenterX, buttonCenterY, buttonWidth, buttonHeight, fill='red', 
              border='black', borderWidth=5, align='center')
-    drawLabel('Export to Sldwrks & 3DP', btn2CenterX, btnCenterY, 
+    drawLabel('Export to Sldwrks & 3DP', button2CenterX, buttonCenterY, 
               size=app.height*0.04, bold=True, fill='white')
 
 def drawGear(app):
@@ -339,16 +343,16 @@ def checkArrows(app, mouseX, mouseY):
         return
 
 def checkDxfButton(app, mouseX, mouseY):
-    btnWidth = app.width*0.4
-    btnHeight = app.height*0.1
-    btnCenterY = app.height*0.92
-    btn1CenterX = app.width*0.28
-    btn2CenterX = app.width*0.72
-    if ((btn1CenterX - btnWidth/2 < mouseX < btn1CenterX + btnWidth/2) and 
-        (btnCenterY - btnHeight/2 < mouseY < btnCenterY + btnHeight/2)):
+    buttonWidth = app.width*0.4
+    buttonHeight = app.height*0.1
+    buttonCenterY = app.height*0.92
+    button1CenterX = app.width*0.28
+    button2CenterX = app.width*0.72
+    if ((button1CenterX - buttonWidth/2 < mouseX < button1CenterX + buttonWidth/2) and 
+        (buttonCenterY - buttonHeight/2 < mouseY < buttonCenterY + buttonHeight/2)):
         generateDxf(app)
-    if ((btn2CenterX - btnWidth/2 < mouseX < btn2CenterX + btnWidth/2) and 
-        (btnCenterY - btnHeight/2 < mouseY < btnCenterY + btnHeight/2)):
+    if ((button2CenterX - buttonWidth/2 < mouseX < button2CenterX + buttonWidth/2) and 
+        (buttonCenterY - buttonHeight/2 < mouseY < buttonCenterY + buttonHeight/2)):
         exportDriveTo3DP(app)
 
 def onKeyPress(app, key):
@@ -432,7 +436,7 @@ def checkValidParameters(app):
     outputHoleRadius = outputR + e
     minThickness = 2
 
-    # ------------- These conditions were found by AI --------------------------
+# ----------------- These conditions were found by AI --------------------------
     distBetweenOutputHoleAndEdge = 2*outputDist*math.sin(math.pi/numOutput)
     if R < e*(Np ** 2):
         minRho = ((R - e*Np)**2)/(e*(Np**2) - R) 
@@ -454,11 +458,12 @@ def checkValidParameters(app):
         R > e*Np,
         r < minRho
     }
-
+# ------------------------------------------------------------------------------
     for condition in conditions:
         if condition == False: return False
     return True
-# ------------------------------------------------------------------------------
+
+
 # ----------------------DXF AND SLDWRKS STUFF-----------------------------------
 
 '''
@@ -496,92 +501,93 @@ def importGearToSldwrks(app):
     camRadius = app.camShaftRadius
 
     coordinates = [((x + e)/1000, (y/1000)) for x, y in app.centeredGearPoints]
-    doc = ezdxf.new()
-    msp = doc.modelspace()
-    msp.add_lwpolyline(coordinates, close=True)
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
+    msp.add_lwpolyline(coordinates, close=True) # AI
     for i in range(numOut): # output holes
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance)
-    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance/2)
+        msp.add_circle((cx, cy), radius=holeRadius/1000 + app.tolerance) # AI
+    msp.add_circle((e/1000, 0), radius=camRadius/1000 + app.tolerance/2) # AI
     fileName = 'cycloidalGearForSldwrksTemp.dxf'
-    doc.saveas(fileName)
+    doc.saveas(fileName) # AI
 
     flipDirection = False
     merge = False
     exportDrive.importAndCreateNewPart(fileName, app.extrustionThickness, 
                                        flipDirection, merge)
-    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+    os.remove(os.path.join(os.path.dirname(__file__), fileName)) # AI
 
 def importStationaryPinsToSldwrks(app):
     R = app.R
     Np = app.Np
     r = app.r
 
-    doc = ezdxf.new()
-    msp = doc.modelspace()
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
     for i in range(Np): # ext pins
         thetaDeg = i*(360/Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=r/1000 - app.tolerance)
+        msp.add_circle((cx, cy), radius=r/1000 - app.tolerance) # AI
     fileName = 'extPinsTemp.dxf'
-    doc.saveas(fileName)
+    doc.saveas(fileName) # AI
     
     flipDirection = False
     merge = False
     exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.25, 
                                      flipDirection, merge)
-    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+    os.remove(os.path.join(os.path.dirname(__file__), fileName)) # AI
 
 def importOutputPinsToSldwrks(app):
     outR = app.outputShaftRadius
     outDist = app.outputShaftDistFromCenter
     numOut = app.numOutputShafts
 
-    doc = ezdxf.new()
-    msp = doc.modelspace()
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
     for i in range(numOut): # output pins
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(0, 0, outDist/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=outR/1000)
+        msp.add_circle((cx, cy), radius=outR/1000) # AI
     fileName = 'outputPinsTemp.dxf'
-    doc.saveas(fileName)
+    doc.saveas(fileName) # AI
     
     flipDirection = False
     merge = False
     exportDrive.importToExistingPart(fileName, app.extrustionThickness*1.3, 
                                      flipDirection, merge)
-    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+    os.remove(os.path.join(os.path.dirname(__file__), fileName)) # AI
 
 def importInputShaftToSldwrks(app):
     e = app.e
     camRadius = app.camShaftRadius
     inputShaftRadius = camRadius - e
 
-    doc = ezdxf.new()
-    msp = doc.modelspace()
-    msp.add_circle((e/1000, 0), radius=camRadius/1000)
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
+    msp.add_circle((e/1000, 0), radius=camRadius/1000)# AI
     fileName = 'inputShaftTemp1.dxf'
-    doc.saveas(fileName)
+    doc.saveas(fileName) # AI
     
     flipDirection = False
     merge = False
     exportDrive.importToExistingPart(fileName, app.extrustionThickness, 
                                      flipDirection, merge)
-    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+    os.remove(os.path.join(os.path.dirname(__file__), fileName)) # AI
 
     # ------------ Cam Shaft -> Input Shaft ---------------
-    doc = ezdxf.new()
-    msp = doc.modelspace()
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
 
-    msp.add_circle((0, 0), radius=(inputShaftRadius/1000)*0.75)
+    msp.add_circle((0, 0), radius=(inputShaftRadius/1000)*0.75) # AI
     fileName = 'inputShaftTemp2.dxf'
-    doc.saveas(fileName)
+    doc.saveas(fileName) # AI
     
     flipDirection = True
     merge = True
-    exportDrive.importToExistingPart(fileName, app.extrustionThickness*2, flipDirection, merge)
-    os.remove(os.path.join(os.path.dirname(__file__), fileName))
+    exportDrive.importToExistingPart(fileName, app.extrustionThickness*2, 
+                                     flipDirection, merge)
+    os.remove(os.path.join(os.path.dirname(__file__), fileName)) # AI
 
 def generateDxf(app):
     R = app.R
@@ -596,24 +602,24 @@ def generateDxf(app):
     inputShaftRadius = camRadius - e
     
     coordinates = [((x + e)/1000, (y/1000)) for x, y in app.centeredGearPoints]
-    doc = ezdxf.new()
-    msp = doc.modelspace()
-    msp.add_lwpolyline(coordinates, close=True)
-    msp.add_circle((e/1000, 0), radius=camRadius/1000)
-    msp.add_circle((0, 0), radius=inputShaftRadius/1000)
+    doc = ezdxf.new() # AI
+    msp = doc.modelspace() # AI
+    msp.add_lwpolyline(coordinates, close=True) # AI
+    msp.add_circle((e/1000, 0), radius=camRadius/1000) # AI
+    msp.add_circle((0, 0), radius=inputShaftRadius/1000) # AI
     for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(e/1000, 0, outDist/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=holeRadius/1000)
+        msp.add_circle((cx, cy), radius=holeRadius/1000) # AI
     for i in range(numOut):
         thetaDeg = i*(360/numOut)
         cx, cy = getRadiusEndpoints(0, 0, outDist/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=outR/1000)
+        msp.add_circle((cx, cy), radius=outR/1000) # AI
     for i in range(Np):
         thetaDeg = i*(360/Np)
         cx, cy = getRadiusEndpoints(0, 0, R/1000, -thetaDeg)
-        msp.add_circle((cx, cy), radius=r/1000)
+        msp.add_circle((cx, cy), radius=r/1000) # AI
 
-    doc.saveas('cycloidalDrive.dxf')
+    doc.saveas('cycloidalDrive.dxf') # AI
 
 runApp()
