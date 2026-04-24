@@ -6,6 +6,20 @@ import printDrive
 import os
 
 '''
+FEATURE LIST
+1. Arrow keys/keybinds control the parameters of cycloidal gear
+2. If you try to change a parameter to something that would result in
+   non-allowed gear geometry, the app will not let you
+3. You can export the cyclodial gear you designed into solidworks, from there it 
+   will build a model in solidworks and then export the solidworks model to the 
+   bambu studio slicer. From there it will generate a .gcode file that you can 
+   use to 3d print.
+4. You can also generate a .dxf file of the cycloidal gear you designed in the
+   app.
+'''
+
+
+'''
 *** All AI use was with Gemini 3.1 Pro***
 '''
 
