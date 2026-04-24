@@ -98,7 +98,7 @@ def redrawAll(app):
     drawOutputShafts(app)
     drawExternalPins(app)
     drawLabels(app)
-    drawButton(app)
+    drawButtons(app)
     drawArrows(app)
 
 def drawInputBox(x, y, width, height, label, value, keybind):
@@ -137,7 +137,7 @@ def drawLabels(app):
     drawLabel(f'Press P to {pausedStatus}', app.width/2, 
               startY1 + boxHeight + 25, size=16, bold=True)
 
-def drawButton(app):
+def drawButtons(app):
     buttonWidth = app.width*0.4
     buttonHeight = app.height*0.1
     buttonCenterY = app.height*0.92
