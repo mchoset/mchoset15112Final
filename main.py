@@ -9,7 +9,8 @@ import os
 *** All AI use was with Gemini 3.1 Pro***
 '''
 
-# Equations given by AI that define the shape of the cycloidal disk
+# Equations given by AI that define the shape of the cycloidal disk.
+# I will exempt these equations given by AI
 '''
 --------------------------------------------------------------------------------
 Inputs that define cycloidal drive geometry
@@ -437,6 +438,7 @@ def checkValidParameters(app):
     minThickness = 2
 
 # ----------------- These conditions were found by AI --------------------------
+# I will exempt lines 442-462 (all the conditions the gear must meet)
     distBetweenOutputHoleAndEdge = 2*outputDist*math.sin(math.pi/numOutput)
     if R < e*(Np ** 2):
         minRho = ((R - e*Np)**2)/(e*(Np**2) - R) 
